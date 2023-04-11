@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
- *
- * WSO2 LLC. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.wso2.carbon.extension.identity.verification.api.rest.v1;
 
@@ -115,9 +113,9 @@ public class MeApi  {
         @ApiResponse(code = 404, message = "Not Found", response = Error.class),
         @ApiResponse(code = 500, message = "Server Error", response = Error.class)
     })
-    public Response meGetIdVClaims(    @Valid@ApiParam(value = "Id of the identity verification provider. ")  @QueryParam("idvp-id") String idvpId) {
+    public Response meGetIdVClaims(    @Valid@ApiParam(value = "Id of the identity verification provider. ")  @QueryParam("idvProviderid") String idvProviderid) {
 
-        return delegate.meGetIdVClaims(idvpId );
+        return delegate.meGetIdVClaims(idvProviderid );
     }
 
     @Valid
@@ -142,6 +140,30 @@ public class MeApi  {
     public Response meUpdateIdVClaim(@ApiParam(value = "Claim that needs to retrieve verification metadata",required=true) @PathParam("claim-id") String claimId, @ApiParam(value = "" ,required=true) @Valid VerificationClaimUpdateRequest verificationClaimUpdateRequest) {
 
         return delegate.meUpdateIdVClaim(claimId,  verificationClaimUpdateRequest );
+    }
+
+    @Valid
+    @PUT
+    @Path("/claims")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json", "application/xml",  })
+    @ApiOperation(value = "Update identity verification claims.", notes = "This API provides the capability to update verification claims of a user", response = List.class, responseContainer = "List", authorizations = {
+        @Authorization(value = "BasicAuth"),
+        @Authorization(value = "OAuth2", scopes = {
+            
+        })
+    }, tags={ "Me - Identity Verification", })
+    @ApiResponses(value = { 
+        @ApiResponse(code = 201, message = "Successful response", response = VerificationClaimResponse.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = Error.class),
+        @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
+        @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
+        @ApiResponse(code = 409, message = "Conflict", response = Error.class),
+        @ApiResponse(code = 500, message = "Server Error", response = Error.class)
+    })
+    public Response meUpdateIdVClaims(@ApiParam(value = "This represents the identity provider to be created." ,required=true) @Valid List<VerificationClaimRequest> verificationClaimRequest) {
+
+        return delegate.meUpdateIdVClaims(verificationClaimRequest );
     }
 
     @Valid

@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
- *
- * WSO2 LLC. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.wso2.carbon.extension.identity.verification.api.rest.v1.model;
 
@@ -24,7 +22,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
-import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.Property;
+import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.Claim;
+import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.ProviderProperty;
 import javax.validation.constraints.*;
 
 
@@ -35,52 +34,79 @@ import javax.xml.bind.annotation.*;
 
 public class VerifyRequest  {
   
-    private String identityVerificationProviderId;
-    private List<Property> properties = null;
+    private String identityVerificationProvider;
+    private List<Claim> claims = null;
+
+    private List<ProviderProperty> properties = new ArrayList<>();
 
 
     /**
     **/
-    public VerifyRequest identityVerificationProviderId(String identityVerificationProviderId) {
+    public VerifyRequest identityVerificationProvider(String identityVerificationProvider) {
 
-        this.identityVerificationProviderId = identityVerificationProviderId;
+        this.identityVerificationProvider = identityVerificationProvider;
         return this;
     }
     
-    @ApiModelProperty(example = "2cfb6d01-5384-4e30-aa37-f9a519e95ffc", required = true, value = "")
-    @JsonProperty("identityVerificationProviderId")
+    @ApiModelProperty(example = "ONFIDO", required = true, value = "")
+    @JsonProperty("identityVerificationProvider")
     @Valid
-    @NotNull(message = "Property identityVerificationProviderId cannot be null.")
+    @NotNull(message = "Property identityVerificationProvider cannot be null.")
 
-    public String getIdentityVerificationProviderId() {
-        return identityVerificationProviderId;
+    public String getIdentityVerificationProvider() {
+        return identityVerificationProvider;
     }
-    public void setIdentityVerificationProviderId(String identityVerificationProviderId) {
-        this.identityVerificationProviderId = identityVerificationProviderId;
+    public void setIdentityVerificationProvider(String identityVerificationProvider) {
+        this.identityVerificationProvider = identityVerificationProvider;
     }
 
     /**
     **/
-    public VerifyRequest properties(List<Property> properties) {
+    public VerifyRequest claims(List<Claim> claims) {
 
-        this.properties = properties;
+        this.claims = claims;
         return this;
     }
     
     @ApiModelProperty(value = "")
+    @JsonProperty("claims")
+    @Valid
+    public List<Claim> getClaims() {
+        return claims;
+    }
+    public void setClaims(List<Claim> claims) {
+        this.claims = claims;
+    }
+
+    public VerifyRequest addClaimsItem(Claim claimsItem) {
+        if (this.claims == null) {
+            this.claims = new ArrayList<>();
+        }
+        this.claims.add(claimsItem);
+        return this;
+    }
+
+        /**
+    **/
+    public VerifyRequest properties(List<ProviderProperty> properties) {
+
+        this.properties = properties;
+        return this;
+    }
+    
+    @ApiModelProperty(required = true, value = "")
     @JsonProperty("properties")
     @Valid
-    public List<Property> getProperties() {
+    @NotNull(message = "Property properties cannot be null.")
+
+    public List<ProviderProperty> getProperties() {
         return properties;
     }
-    public void setProperties(List<Property> properties) {
+    public void setProperties(List<ProviderProperty> properties) {
         this.properties = properties;
     }
 
-    public VerifyRequest addPropertiesItem(Property propertiesItem) {
-        if (this.properties == null) {
-            this.properties = new ArrayList<>();
-        }
+    public VerifyRequest addPropertiesItem(ProviderProperty propertiesItem) {
         this.properties.add(propertiesItem);
         return this;
     }
@@ -97,13 +123,14 @@ public class VerifyRequest  {
             return false;
         }
         VerifyRequest verifyRequest = (VerifyRequest) o;
-        return Objects.equals(this.identityVerificationProviderId, verifyRequest.identityVerificationProviderId) &&
+        return Objects.equals(this.identityVerificationProvider, verifyRequest.identityVerificationProvider) &&
+            Objects.equals(this.claims, verifyRequest.claims) &&
             Objects.equals(this.properties, verifyRequest.properties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(identityVerificationProviderId, properties);
+        return Objects.hash(identityVerificationProvider, claims, properties);
     }
 
     @Override
@@ -112,7 +139,8 @@ public class VerifyRequest  {
         StringBuilder sb = new StringBuilder();
         sb.append("class VerifyRequest {\n");
         
-        sb.append("    identityVerificationProviderId: ").append(toIndentedString(identityVerificationProviderId)).append("\n");
+        sb.append("    identityVerificationProvider: ").append(toIndentedString(identityVerificationProvider)).append("\n");
+        sb.append("    claims: ").append(toIndentedString(claims)).append("\n");
         sb.append("    properties: ").append(toIndentedString(properties)).append("\n");
         sb.append("}");
         return sb.toString();

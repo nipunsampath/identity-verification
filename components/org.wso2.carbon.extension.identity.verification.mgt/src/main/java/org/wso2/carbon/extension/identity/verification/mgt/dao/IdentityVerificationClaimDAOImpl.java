@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.extension.identity.verification.mgt.dao;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.wso2.carbon.extension.identity.verification.mgt.exception.IdentityVerificationException;
 import org.wso2.carbon.extension.identity.verification.mgt.model.IdVClaim;
@@ -30,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.CLAIM_URI;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_ADDING_IDV_CLAIM;
@@ -47,7 +47,9 @@ import static org.wso2.carbon.extension.identity.verification.mgt.utils.Identity
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.ADD_IDV_CLAIM_SQL;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.DELETE_IDV_CLAIM_SQL;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.GET_IDV_CLAIMS_SQL;
+import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.GET_IDV_CLAIM_BY_CLAIM_URI_SQL;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.GET_IDV_CLAIM_SQL;
+import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.IDVP_FILTER;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.IS_IDV_CLAIM_DATA_EXIST_SQL;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.IS_IDV_CLAIM_EXIST_SQL;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.SQLQueries.UPDATE_IDV_CLAIM_SQL;
@@ -76,7 +78,7 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
                     addIdVProviderStmt.setString(3, idVClaim.getClaimUri());
                     addIdVProviderStmt.setString(4, idVClaim.getIdVPId());
                     addIdVProviderStmt.setInt(5, tenantId);
-                    addIdVProviderStmt.setString(6, idVClaim.getStatus() ? "1" : "0");
+                    addIdVProviderStmt.setString(6, idVClaim.isVerified() ? "1" : "0");
                     addIdVProviderStmt.setBytes(7, getMetadata(idVClaim));
                     addIdVProviderStmt.executeUpdate();
                 } catch (SQLException e1) {
@@ -93,7 +95,7 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
             try (PreparedStatement updateIdVProviderStmt = connection.prepareStatement(UPDATE_IDV_CLAIM_SQL)) {
-                updateIdVProviderStmt.setString(1, idVClaim.getStatus() ? "1" : "0");
+                updateIdVProviderStmt.setString(1, idVClaim.isVerified() ? "1" : "0");
                 updateIdVProviderStmt.setObject(2, getMetadata(idVClaim));
                 updateIdVProviderStmt.setString(3, idVClaim.getUserId());
                 updateIdVProviderStmt.setString(4, idVClaim.getUuid());
@@ -127,7 +129,7 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
                     idVClaim.setUserId(idVProviderResultSet.getString(USER_ID));
                     idVClaim.setClaimUri(idVProviderResultSet.getString(CLAIM_URI));
                     idVClaim.setIdVPId(idVProviderResultSet.getString(IDVP_ID));
-                    idVClaim.setStatus(idVProviderResultSet.getBoolean(IS_VERIFIED));
+                    idVClaim.setIsVerified(idVProviderResultSet.getBoolean(IS_VERIFIED));
                     idVClaim.setMetadata(getMetadataJsonObject(idVProviderResultSet.getBytes(METADATA)));
                 }
             }
@@ -138,13 +140,51 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
     }
 
     @Override
-    public IdVClaim[] getIDVClaims(String userId, int tenantId) throws IdentityVerificationException {
+    public IdVClaim getIDVClaim(String userId, String idvClaimUri, String idVProviderId, int tenantId)
+            throws IdentityVerificationException {
+
+        IdVClaim idVClaim = null;
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false);
+             PreparedStatement getIdVProviderStmt = connection.prepareStatement(GET_IDV_CLAIM_BY_CLAIM_URI_SQL)) {
+            getIdVProviderStmt.setString(1, userId);
+            getIdVProviderStmt.setString(2, idvClaimUri);
+            getIdVProviderStmt.setString(3, idVProviderId);
+            getIdVProviderStmt.setInt(4, tenantId);
+            getIdVProviderStmt.execute();
+            try (ResultSet idVProviderResultSet = getIdVProviderStmt.executeQuery()) {
+                while (idVProviderResultSet.next()) {
+                    idVClaim = new IdVClaim();
+                    idVClaim.setId(idVProviderResultSet.getString(ID));
+                    idVClaim.setUuid(idVProviderResultSet.getString(IDV_CLAIM_UUID));
+                    idVClaim.setUserId(idVProviderResultSet.getString(USER_ID));
+                    idVClaim.setClaimUri(idVProviderResultSet.getString(CLAIM_URI));
+                    idVClaim.setIdVPId(idVProviderResultSet.getString(IDVP_ID));
+                    idVClaim.setIsVerified(idVProviderResultSet.getBoolean(IS_VERIFIED));
+                    idVClaim.setMetadata(getMetadataJsonObject(idVProviderResultSet.getBytes(METADATA)));
+                }
+            }
+        } catch (SQLException e) {
+            throw IdentityVerificationExceptionMgt.handleServerException(ERROR_RETRIEVING_IDV_CLAIM, e);
+        }
+        return idVClaim;
+    }
+
+    @Override
+    public IdVClaim[] getIDVClaims(String userId, String idvProviderId, int tenantId)
+            throws IdentityVerificationException {
 
         List<IdVClaim> idVClaims = new ArrayList<>();
+        String query = GET_IDV_CLAIMS_SQL;
+        if (StringUtils.isNotBlank(idvProviderId)) {
+            query = GET_IDV_CLAIMS_SQL + IDVP_FILTER;
+        }
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false);
-             PreparedStatement getIdVProviderStmt = connection.prepareStatement(GET_IDV_CLAIMS_SQL)) {
+             PreparedStatement getIdVProviderStmt = connection.prepareStatement(query)) {
             getIdVProviderStmt.setString(1, userId);
             getIdVProviderStmt.setInt(2, tenantId);
+            if (StringUtils.isNotBlank(idvProviderId)) {
+                getIdVProviderStmt.setString(3, idvProviderId);
+            }
             getIdVProviderStmt.execute();
             try (ResultSet idVProviderResultSet = getIdVProviderStmt.executeQuery()) {
                 while (idVProviderResultSet.next()) {
@@ -153,7 +193,7 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
                     idVClaim.setUuid(idVProviderResultSet.getString(IDV_CLAIM_UUID));
                     idVClaim.setUserId(idVProviderResultSet.getString(USER_ID));
                     idVClaim.setClaimUri(idVProviderResultSet.getString(CLAIM_URI));
-                    idVClaim.setStatus(idVProviderResultSet.getBoolean(IS_VERIFIED));
+                    idVClaim.setIsVerified(idVProviderResultSet.getBoolean(IS_VERIFIED));
                     idVClaim.setMetadata(getMetadataJsonObject(idVProviderResultSet.getBytes(METADATA)));
                     idVClaims.add(idVClaim);
                 }
@@ -174,6 +214,24 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
             deleteIdVProviderStmt.setInt(3, tenantId);
             deleteIdVProviderStmt.executeUpdate();
             IdentityDatabaseUtil.commitTransaction(connection);
+        } catch (SQLException e) {
+            throw IdentityVerificationExceptionMgt.handleServerException(ERROR_DELETING_IDV_CLAIM, e);
+        }
+    }
+
+    @Override
+    public void deleteIdVClaims(String userId, IdVClaim[] idVClaims, int tenantId) throws
+            IdentityVerificationException {
+
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
+            try (PreparedStatement deleteIdVProviderStmt = connection.prepareStatement(DELETE_IDV_CLAIM_SQL)) {
+                for (IdVClaim idVClaim : idVClaims) {
+                    deleteIdVProviderStmt.setString(1, userId);
+                    deleteIdVProviderStmt.setString(2, idVClaim.getUuid());
+                    deleteIdVProviderStmt.setInt(3, tenantId);
+                    deleteIdVProviderStmt.executeUpdate();
+                }
+            }
         } catch (SQLException e) {
             throw IdentityVerificationExceptionMgt.handleServerException(ERROR_DELETING_IDV_CLAIM, e);
         }

@@ -63,12 +63,12 @@ public class IdVClaim {
         this.userId = userId;
     }
 
-    public boolean getStatus() {
+    public boolean isVerified() {
 
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setIsVerified(boolean status) {
 
         this.status = status;
     }

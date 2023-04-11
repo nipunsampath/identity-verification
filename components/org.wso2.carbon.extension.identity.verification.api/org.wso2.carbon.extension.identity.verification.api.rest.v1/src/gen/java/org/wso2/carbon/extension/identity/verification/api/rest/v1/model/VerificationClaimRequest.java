@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
- *
- * WSO2 LLC. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package org.wso2.carbon.extension.identity.verification.api.rest.v1.model;
 
@@ -37,7 +35,7 @@ public class VerificationClaimRequest  {
   
     private String uri;
     private Boolean isVerified;
-    private String idvpId;
+    private String idvProviderId;
     private Map<String, Object> claimMetadata = null;
 
 
@@ -49,7 +47,7 @@ public class VerificationClaimRequest  {
         return this;
     }
     
-    @ApiModelProperty(example = "http://wso2.org/claims/country", value = "")
+    @ApiModelProperty(example = "http://wso2.org/claims/dob", value = "")
     @JsonProperty("uri")
     @Valid
     public String getUri() {
@@ -79,20 +77,20 @@ public class VerificationClaimRequest  {
 
     /**
     **/
-    public VerificationClaimRequest idvpId(String idvpId) {
+    public VerificationClaimRequest idvProviderId(String idvProviderId) {
 
-        this.idvpId = idvpId;
+        this.idvProviderId = idvProviderId;
         return this;
     }
     
     @ApiModelProperty(example = "2159375-r567-8524-a456-5566424414527", value = "")
-    @JsonProperty("idvpId")
+    @JsonProperty("idvProviderId")
     @Valid
-    public String getIdvpId() {
-        return idvpId;
+    public String getIdvProviderId() {
+        return idvProviderId;
     }
-    public void setIdvpId(String idvpId) {
-        this.idvpId = idvpId;
+    public void setIdvProviderId(String idvProviderId) {
+        this.idvProviderId = idvProviderId;
     }
 
     /**
@@ -136,13 +134,13 @@ public class VerificationClaimRequest  {
         VerificationClaimRequest verificationClaimRequest = (VerificationClaimRequest) o;
         return Objects.equals(this.uri, verificationClaimRequest.uri) &&
             Objects.equals(this.isVerified, verificationClaimRequest.isVerified) &&
-            Objects.equals(this.idvpId, verificationClaimRequest.idvpId) &&
+            Objects.equals(this.idvProviderId, verificationClaimRequest.idvProviderId) &&
             Objects.equals(this.claimMetadata, verificationClaimRequest.claimMetadata);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uri, isVerified, idvpId, claimMetadata);
+        return Objects.hash(uri, isVerified, idvProviderId, claimMetadata);
     }
 
     @Override
@@ -153,7 +151,7 @@ public class VerificationClaimRequest  {
         
         sb.append("    uri: ").append(toIndentedString(uri)).append("\n");
         sb.append("    isVerified: ").append(toIndentedString(isVerified)).append("\n");
-        sb.append("    idvpId: ").append(toIndentedString(idvpId)).append("\n");
+        sb.append("    idvProviderId: ").append(toIndentedString(idvProviderId)).append("\n");
         sb.append("    claimMetadata: ").append(toIndentedString(claimMetadata)).append("\n");
         sb.append("}");
         return sb.toString();

@@ -27,12 +27,8 @@ import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.Verific
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerificationPostResponse;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerifyRequest;
 
-import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-
-import static org.wso2.carbon.extension.identity.verification.api.rest.common.Constants.IDV_API_PATH_COMPONENT;
-import static org.wso2.carbon.extension.identity.verification.api.rest.common.Constants.V1_API_PROVIDER_PATH_COMPONENT;
 
 /**
  * This class implements the UsersApiService interface.
@@ -59,10 +55,10 @@ public class UsersApiServiceImpl implements UsersApiService {
     }
 
     @Override
-    public Response getIdVClaims(String userId, String idvpId) {
+    public Response getIdVClaims(String userId, String idvProviderId) {
 
         List<VerificationClaimResponse> VerificationClaimResponse =
-                identityVerificationService.getIdVClaims(userId);
+                identityVerificationService.getIdVClaims(userId, idvProviderId);
         return Response.ok().entity(VerificationClaimResponse).build();
     }
 
@@ -73,6 +69,14 @@ public class UsersApiServiceImpl implements UsersApiService {
         VerificationClaimResponse verificationClaimResponse =
                 identityVerificationService.updateIdVClaim(userId, claimId, verificationClaimUpdateRequest);
         return Response.ok().entity(verificationClaimResponse).build();
+    }
+
+    @Override
+    public Response updateIdVClaims(String userId, List<VerificationClaimRequest> verificationClaimRequest) {
+
+        List<VerificationClaimResponse> idvClaimUpdateResponse =
+                identityVerificationService.updateIdVClaims(userId, verificationClaimRequest);
+        return Response.ok().entity(idvClaimUpdateResponse).build();
     }
 
     @Override

@@ -123,6 +123,13 @@ paths:
       summary: Add identity verification claim.
       description: "This API provides the capability to add verification claim data"
       operationId: meAddIdVClaim
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/verificationClaimPostRequest'
+        description: This represents the identity provider to be created.
+        required: true
       responses:
         '201':
           description: Successful response
@@ -163,6 +170,12 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Me - Identity Verification
+      summary: Update identity verification claims.
+      description: "This API provides the capability to update verification claims of a user"
+      operationId: meUpdateIdVClaims
       requestBody:
         content:
           application/json:
@@ -170,6 +183,46 @@ paths:
               $ref: '#/components/schemas/verificationClaimPostRequest'
         description: This represents the identity provider to be created.
         required: true
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/verificationClaimPostResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
   /me/claims/{claim-id}:
     get:
       tags:
@@ -423,6 +476,66 @@ paths:
               $ref: '#/components/schemas/verificationClaimPostRequest'
         description: This represents the identity provider to be created.
         required: true
+    put:
+      tags:
+        - Admin - Identity Verification
+      summary: Update identity verification claims of a user.
+      description: "This API provides the capability to update verification claims of a user"
+      operationId: updateIdVClaims
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/verificationClaimPostRequest'
+        description: This represents the identity provider to be created.
+        required: true
+      parameters:
+        - name: user-id
+          in: path
+          description: user id of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/verificationClaimPostResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
   /users/{user-id}/claims/{claim-id}:
     get:
       tags:
@@ -538,9 +651,9 @@ paths:
         This API provides the capability to retrieve the list of identity
         verification providers.<br>
         <b>Permission required:</b> <br>
-            * /permission/admin/manage/identity/idvmgt/view <br>
+            * /permission/admin/manage/identity/idvpmgt/view <br>
         <b>Scope required:</b> <br>
-            * internal_idv_view
+            * internal_idvp_view
       operationId: getIdVProviders
       parameters:
         - $ref: '#/components/parameters/limitQueryParam'
@@ -585,7 +698,12 @@ paths:
         - Identity Verification Providers
       summary: |
         Add a new identity verification providers.
-      description: ""
+      description: >
+        This API provides the capability to add an identity verification provider.
+        <b>Permission required:</b> <br>
+            * /permission/admin/manage/identity/idvpmgt/create <br>
+        <b>Scope required:</b> <br>
+            * internal_idvp_add
       operationId: addIdVProvider
       responses:
         '201':
@@ -647,9 +765,9 @@ paths:
         This API provides the capability to retrieve the identity verification provider
         details by using its ID. 
         <b>Permission required:</b> <br>
-            * /permission/admin/manage/identity/idvmgt/view <br>
+            * /permission/admin/manage/identity/idvpmgt/view <br>
         <b>Scope required:</b> <br>
-            * internal_idv_view
+            * internal_idvp_view
       operationId: getIdVProvider
       parameters:
         - name: idv-provider-id
@@ -698,9 +816,9 @@ paths:
       description: >
         This API provides the capability to update an identity verification provider <br>
         <b>Permission required:</b> <br>
-            * /permission/admin/manage/identity/idvmgt/update <br>
+            * /permission/admin/manage/identity/idvpmgt/update <br>
         <b>Scope required:</b> <br>
-            * internal_idv_update
+            * internal_idvp_update
       operationId: updateIdVProviders
       parameters:
         - name: idv-provider-id
@@ -758,9 +876,9 @@ paths:
         This API provides the capability to delete an identity verification provider by
         giving its ID. <br>
         <b>Permission required:</b> <br>
-            * /permission/admin/manage/identity/idvmgt/delete <br>
+            * /permission/admin/manage/identity/idvpmgt/delete <br>
         <b>Scope required:</b> <br>
-            * internal_idv_delete
+            * internal_idvp_delete
       operationId: deleteIdVProvider
       parameters:
         - name: idv-provider-id
@@ -816,7 +934,7 @@ components:
         format: int32
     idVPQueryParam:
       in: query
-      name: idvp-id
+      name: idvProviderid
       required: false
       description: |
         Id of the identity verification provider.
@@ -843,7 +961,7 @@ components:
       properties:
         identityVerificationProvider:
           type: string
-          example: evidentID
+          example: ONFIDO
         claims:
           type: array
           items:
@@ -857,33 +975,29 @@ components:
           readOnly: true
         uri:
           type: string
-          example: 'http://wso2.org/claims/country'
+          example: 'http://wso2.org/claims/dob'
         isVerified:
           type: boolean
           example: true
-        idvpId:
+        idvProviderId:
           type: string
           example: '2159375-r567-8524-a456-5566424414527'
         claimMetadata:
-          type: object
-          additionalProperties: true
-          example: '{"source": "evidentID", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
+          $ref: '#/components/schemas/claimMetadata'
     verificationClaimRequest:
       type: object
       properties:
         uri:
           type: string
-          example: 'http://wso2.org/claims/country'
+          example: 'http://wso2.org/claims/dob'
         isVerified:
           type: boolean
           example: true
-        idvpId:
+        idvProviderId:
           type: string
           example: '2159375-r567-8524-a456-5566424414527'
         claimMetadata:
-          type: object
-          additionalProperties: true
-          example: '{"source": "evidentID", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
+          $ref: '#/components/schemas/claimMetadata'
     verificationClaimUpdateRequest:
       type: object
       properties:
@@ -891,12 +1005,14 @@ components:
           type: boolean
           example: true
         claimMetadata:
-          type: object
-          additionalProperties: true
-          example: '{"source": "evidentID", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
+          $ref: '#/components/schemas/claimMetadata'
       required:
         - isVerified
         - claimMetadata
+    claimMetadata:
+      type: object
+      additionalProperties: true
+      example: '{"source": "evidentID", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
     verificationClaimPostRequest:
       type: array
       items:
@@ -908,15 +1024,20 @@ components:
     verifyRequest:
       type: object
       properties:
-        identityVerificationProviderId:
+        identityVerificationProvider:
           type: string
-          example: "2cfb6d01-5384-4e30-aa37-f9a519e95ffc"
+          example: "ONFIDO"
+        claims:
+          type: array
+          items:
+            $ref: '#/components/schemas/claim'
         properties:
           type: array
           items:
-            $ref: '#/components/schemas/Property'
+            $ref: '#/components/schemas/ProviderProperty'
       required:
-        - identityVerificationProviderId
+        - identityVerificationProvider
+        - properties
     IdVProviderListResponse:
       type: object
       properties:
@@ -991,13 +1112,15 @@ components:
         isSecret:
           type: boolean
           example: false
-    Property:
+    ProviderProperty:
       type: object
       properties:
         key:
           type: string
+          example: status
         value:
           type: string
+          example: "INITIATED"
     verificationClaim:
       type: object
       properties:
@@ -1007,6 +1130,15 @@ components:
         idvpClaim:
           type: string
           example: birthday
+    claim:
+      type: object
+      properties:
+        uri:
+          type: string
+          example: 'http://wso2.org/claims/dob'
+        value:
+          type: string
+          example: 10-11-1995
   securitySchemes:
     BasicAuth:
       type: http

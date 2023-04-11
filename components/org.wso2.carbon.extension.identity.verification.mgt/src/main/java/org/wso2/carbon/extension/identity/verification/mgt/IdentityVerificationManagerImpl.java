@@ -43,7 +43,7 @@ import java.util.UUID;
 
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_CODE_GET_DAO;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_GETTING_USER_STORE;
-import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_INVALID_IDV_PROVIDER_ID;
+import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_INVALID_IDV_PROVIDER;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_INVALID_IDV_VERIFIER;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_INVALID_USER_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER;
@@ -81,14 +81,12 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
             throws IdentityVerificationException {
 
         validateUserId(userId, tenantId);
-
-        String identityVerifierId = identityVerifierData.getIdVProviderId();
-        if (StringUtils.isBlank(identityVerifierId) || !isValidIdVProviderId(identityVerifierId, tenantId)) {
+        String identityVerifierName = identityVerifierData.getIdVProviderName();
+        if (StringUtils.isBlank(identityVerifierName) || !isValidIdVProviderByName(identityVerifierName, tenantId)) {
             throw IdentityVerificationExceptionMgt.
-                    handleClientException(ERROR_INVALID_IDV_PROVIDER_ID, identityVerifierId);
+                    handleClientException(ERROR_INVALID_IDV_PROVIDER, identityVerifierName);
         }
 
-        String identityVerifierName = getIdentityVerifierName(tenantId, identityVerifierId);
         IdentityVerifierFactory identityVerifierFactory =
                 IdentityVerificationDataHolder.getInstance().getIdentityVerifierFactory(identityVerifierName);
         if (identityVerifierFactory == null) {
@@ -112,13 +110,43 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
     }
 
     @Override
+    public IdVClaim getIdVClaim(String userId, String idvClaimUri, String idVProviderId, int tenantId)
+            throws IdentityVerificationException {
+
+        validateUserId(userId, tenantId);
+        if (StringUtils.isNotBlank(idVProviderId)) {
+            if (!isValidIdVProviderId(idVProviderId, tenantId)) {
+                throw IdentityVerificationExceptionMgt.handleClientException(ERROR_INVALID_IDV_PROVIDER, idVProviderId);
+            }
+        }
+        return getIdVClaimDAO().getIDVClaim(userId, idvClaimUri, idVProviderId, tenantId);
+    }
+
+    @Override
     public List<IdVClaim> addIdVClaims(String userId, List<IdVClaim> idVClaims, int tenantId)
             throws IdentityVerificationException {
 
         validateUserId(userId, tenantId);
         for (IdVClaim idVClaim : idVClaims) {
             // Set uuid for each identity verification claim.
-            idVClaim.setId(UUID.randomUUID().toString());
+            idVClaim.setUuid(UUID.randomUUID().toString());
+
+            // Validate the identity verification claim.
+            validateIdVClaimInputs(userId, idVClaim, tenantId);
+        }
+        getIdVClaimDAO().addIdVClaimList(idVClaims, tenantId);
+        return idVClaims;
+    }
+
+    @Override
+    public List<IdVClaim> updateIdVClaims(String userId, List<IdVClaim> idVClaims, int tenantId)
+            throws IdentityVerificationException {
+
+        validateUserId(userId, tenantId);
+        deleteIDVClaims(userId, tenantId);
+        for (IdVClaim idVClaim : idVClaims) {
+            // Set uuid for each identity verification claim.
+            idVClaim.setUuid(UUID.randomUUID().toString());
 
             // Validate the identity verification claim.
             validateIdVClaimInputs(userId, idVClaim, tenantId);
@@ -150,10 +178,23 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
     }
 
     @Override
-    public IdVClaim[] getIdVClaims(String userId, int tenantId) throws IdentityVerificationException {
+    public void deleteIDVClaims(String userId, int tenantId) throws IdentityVerificationException {
 
         validateUserId(userId, tenantId);
-        return getIdVClaimDAO().getIDVClaims(userId, tenantId);
+        IdVClaim[] idVClaims = getIdVClaims(userId, null, tenantId);
+        getIdVClaimDAO().deleteIdVClaims(userId, idVClaims, tenantId);
+    }
+
+    @Override
+    public IdVClaim[] getIdVClaims(String userId, String idvProviderId, int tenantId) throws IdentityVerificationException {
+
+        validateUserId(userId, tenantId);
+        if (StringUtils.isNotBlank(idvProviderId)) {
+            if (!isValidIdVProviderId(idvProviderId, tenantId)) {
+                throw IdentityVerificationExceptionMgt.handleClientException(ERROR_INVALID_IDV_PROVIDER, idvProviderId);
+            }
+        }
+        return getIdVClaimDAO().getIDVClaims(userId, idvProviderId, tenantId);
     }
 
     private void validateIdVClaimId(String idvClaimId, int tenantId) throws IdentityVerificationException {
@@ -178,7 +219,7 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
         String idvProviderId = idVClaim.getIdVPId();
         String claimUri = idVClaim.getClaimUri();
         if (StringUtils.isBlank(idvProviderId) || !isValidIdVProviderId(idvProviderId, tenantId)) {
-            throw IdentityVerificationExceptionMgt.handleClientException(ERROR_INVALID_IDV_PROVIDER_ID, idvProviderId);
+            throw IdentityVerificationExceptionMgt.handleClientException(ERROR_INVALID_IDV_PROVIDER, idvProviderId);
         }
         if (StringUtils.isBlank(claimUri)) {
             throw IdentityVerificationExceptionMgt.handleClientException(
@@ -201,6 +242,20 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
         } catch (IdVProviderMgtException e) {
             throw IdentityVerificationExceptionMgt.handleServerException(
                     IdentityVerificationConstants.ErrorMessage.ERROR_VALIDATING_IDV_PROVIDER_ID, idvProviderId, e);
+        }
+        return false;
+    }
+
+    private boolean isValidIdVProviderByName(String idvProviderName, int tenantId) throws IdentityVerificationException {
+
+        try {
+            if (IdentityVerificationDataHolder.getInstance().
+                    getIdVProviderManager().isIdVProviderExistsByName(idvProviderName, tenantId)) {
+                return true;
+            }
+        } catch (IdVProviderMgtException e) {
+            throw IdentityVerificationExceptionMgt.handleServerException(
+                    IdentityVerificationConstants.ErrorMessage.ERROR_VALIDATING_IDV_PROVIDER_ID, idvProviderName, e);
         }
         return false;
     }

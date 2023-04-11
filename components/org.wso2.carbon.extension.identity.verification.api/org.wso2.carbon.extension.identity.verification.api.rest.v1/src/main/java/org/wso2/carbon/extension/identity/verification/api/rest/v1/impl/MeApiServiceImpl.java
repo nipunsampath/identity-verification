@@ -58,10 +58,10 @@ public class MeApiServiceImpl implements MeApiService {
     }
 
     @Override
-    public Response meGetIdVClaims(String idvpId) {
+    public Response meGetIdVClaims(String idvProviderId) {
 
         List<VerificationClaimResponse> verificationGetResponse =
-                identityVerificationService.getIdVClaims(getUserIdFromContext());
+                identityVerificationService.getIdVClaims(getUserIdFromContext(), idvProviderId);
         return Response.ok().entity(verificationGetResponse).build();
     }
 
@@ -71,6 +71,14 @@ public class MeApiServiceImpl implements MeApiService {
         VerificationClaimResponse verificationClaimResponse = identityVerificationService.
                 updateIdVClaim(getUserIdFromContext(), claimId, verificationClaimUpdateRequest);
         return Response.ok().entity(verificationClaimResponse).build();
+    }
+
+    @Override
+    public Response meUpdateIdVClaims(List<VerificationClaimRequest> verificationClaimRequest) {
+
+        List<VerificationClaimResponse> idvClaimUpdateResponse = identityVerificationService.
+                updateIdVClaims(getUserIdFromContext(), verificationClaimRequest);
+        return Response.ok().entity(idvClaimUpdateResponse).build();
     }
 
     @Override

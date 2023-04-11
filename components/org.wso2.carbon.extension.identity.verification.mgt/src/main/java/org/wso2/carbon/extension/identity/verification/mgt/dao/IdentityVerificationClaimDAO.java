@@ -54,24 +54,39 @@ public interface IdentityVerificationClaimDAO {
     void updateIdVClaim(IdVClaim idVClaim, int tenantId) throws IdentityVerificationException;
 
     /**
-     * Get the identity verification claim.
+     * Get the identity verification claim by userId and idVClaimId.
      *
      * @param userId     User id.
      * @param idVClaimId Identity verification claim id.
+     * @param tenantId   Tenant id.
      * @return Identity verification claim.
      * @throws IdentityVerificationException Identity verification exception.
      */
     IdVClaim getIDVClaim(String userId, String idVClaimId, int tenantId) throws IdentityVerificationException;
 
     /**
-     * Get the identity verification claims.
+     * Get the identity verification claim.
      *
-     * @param tenantId Identity verification claim id.
-     * @param userId   User id.
+     * @param userId        User id.
+     * @param idvClaimUri   Identity verification claim URI.
+     * @param idVProviderId Identity verification provider id.
+     * @param tenantId      Tenant id.
      * @return Identity verification claim.
      * @throws IdentityVerificationException Identity verification exception.
      */
-    IdVClaim[] getIDVClaims(String userId, int tenantId) throws IdentityVerificationException;
+    IdVClaim getIDVClaim(String userId, String idvClaimUri, String idVProviderId, int tenantId)
+            throws IdentityVerificationException;
+
+    /**
+     * Get the identity verification claims.
+     *
+     * @param userId        User id.
+     * @param idvProviderId Identity verification provider id.
+     * @param tenantId      Identity verification claim id.
+     * @return Identity verification claim.
+     * @throws IdentityVerificationException Identity verification exception.
+     */
+    IdVClaim[] getIDVClaims(String userId, String idvProviderId, int tenantId) throws IdentityVerificationException;
 
     /**
      * Delete the identity verification claim.
@@ -84,10 +99,20 @@ public interface IdentityVerificationClaimDAO {
     void deleteIdVClaim(String userId, String idVClaimId, int tenantId) throws IdentityVerificationException;
 
     /**
+     * Delete identity verification claims of a user.
+     *
+     * @param userId    User id.
+     * @param idVClaims Identity verification claims.
+     * @param tenantId  Tenant id.
+     * @throws IdentityVerificationException Identity verification exception.
+     */
+    void deleteIdVClaims(String userId, IdVClaim[] idVClaims, int tenantId) throws IdentityVerificationException;
+
+    /**
      * Check whether the identity verification claim exist.
      *
      * @param userId        User id.
-     * @param idvProviderId Identity verification providerid.
+     * @param idvProviderId Identity verification provider id.
      * @param uri           Claim uri.
      * @param tenantId      Tenant id.
      * @return True if the identity verification claim exist.

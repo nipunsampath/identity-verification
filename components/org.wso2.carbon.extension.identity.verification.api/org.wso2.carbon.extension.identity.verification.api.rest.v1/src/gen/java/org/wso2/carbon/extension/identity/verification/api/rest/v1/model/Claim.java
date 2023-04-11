@@ -28,45 +28,45 @@ import java.util.Objects;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.*;
 
-public class VerificationClaim  {
+public class Claim  {
   
-    private String localClaim;
-    private String idvpClaim;
+    private String uri;
+    private String value;
 
     /**
     **/
-    public VerificationClaim localClaim(String localClaim) {
+    public Claim uri(String uri) {
 
-        this.localClaim = localClaim;
+        this.uri = uri;
         return this;
     }
     
     @ApiModelProperty(example = "http://wso2.org/claims/dob", value = "")
-    @JsonProperty("localClaim")
+    @JsonProperty("uri")
     @Valid
-    public String getLocalClaim() {
-        return localClaim;
+    public String getUri() {
+        return uri;
     }
-    public void setLocalClaim(String localClaim) {
-        this.localClaim = localClaim;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     /**
     **/
-    public VerificationClaim idvpClaim(String idvpClaim) {
+    public Claim value(String value) {
 
-        this.idvpClaim = idvpClaim;
+        this.value = value;
         return this;
     }
     
-    @ApiModelProperty(example = "birthday", value = "")
-    @JsonProperty("idvpClaim")
+    @ApiModelProperty(example = "10-11-1995", value = "")
+    @JsonProperty("value")
     @Valid
-    public String getIdvpClaim() {
-        return idvpClaim;
+    public String getValue() {
+        return value;
     }
-    public void setIdvpClaim(String idvpClaim) {
-        this.idvpClaim = idvpClaim;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 
@@ -80,24 +80,24 @@ public class VerificationClaim  {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        VerificationClaim verificationClaim = (VerificationClaim) o;
-        return Objects.equals(this.localClaim, verificationClaim.localClaim) &&
-            Objects.equals(this.idvpClaim, verificationClaim.idvpClaim);
+        Claim claim = (Claim) o;
+        return Objects.equals(this.uri, claim.uri) &&
+            Objects.equals(this.value, claim.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(localClaim, idvpClaim);
+        return Objects.hash(uri, value);
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("class VerificationClaim {\n");
+        sb.append("class Claim {\n");
         
-        sb.append("    localClaim: ").append(toIndentedString(localClaim)).append("\n");
-        sb.append("    idvpClaim: ").append(toIndentedString(idvpClaim)).append("\n");
+        sb.append("    uri: ").append(toIndentedString(uri)).append("\n");
+        sb.append("    value: ").append(toIndentedString(value)).append("\n");
         sb.append("}");
         return sb.toString();
     }

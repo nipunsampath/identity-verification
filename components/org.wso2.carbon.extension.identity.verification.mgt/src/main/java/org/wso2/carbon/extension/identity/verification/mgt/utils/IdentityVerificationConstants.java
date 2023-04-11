@@ -49,6 +49,10 @@ public class IdentityVerificationConstants {
                 "SELECT ID, UUID, USER_ID, CLAIM_URI, TENANT_ID, IDVP_ID, IS_VERIFIED, METADATA FROM IDV_CLAIM " +
                         "WHERE USER_ID=? AND UUID=? AND TENANT_ID=?";
 
+        public static final String GET_IDV_CLAIM_BY_CLAIM_URI_SQL =
+                "SELECT ID, UUID, USER_ID, CLAIM_URI, TENANT_ID, IDVP_ID, IS_VERIFIED, METADATA FROM IDV_CLAIM " +
+                        "WHERE USER_ID=? AND CLAIM_URI=? AND IDVP_ID=? AND TENANT_ID=?";
+
         public static final String GET_IDV_CLAIMS_SQL =
                 "SELECT ID, UUID, USER_ID, CLAIM_URI, IS_VERIFIED, METADATA FROM IDV_CLAIM WHERE " +
                         "USER_ID=? AND TENANT_ID=?";
@@ -64,6 +68,8 @@ public class IdentityVerificationConstants {
 
         public static final String IS_IDV_CLAIM_EXIST_SQL =
                 "SELECT ID FROM IDV_CLAIM WHERE UUID=? AND TENANT_ID=?";
+
+        public static final String IDVP_FILTER = " AND IDVP_ID=?";
     }
 
     /**
@@ -75,7 +81,7 @@ public class IdentityVerificationConstants {
         ERROR_IDV_CLAIM_DATA_ALREADY_EXISTS("10000",
                 "Identity Verification Claim data already exists for the user: %s."),
         ERROR_EMPTY_CLAIM_METADATA("10001", "Claim Metadata is empty."),
-        ERROR_INVALID_IDV_PROVIDER_ID("10002", "Identity Verification Provider Id: %s not found."),
+        ERROR_INVALID_IDV_PROVIDER("10002", "Identity Verification Provider: %s not found."),
         ERROR_INVALID_CLAIM_URI("10003", "Claim URI: %s not found."),
         ERROR_INVALID_USER_ID("10004", "User cannot be found with the user Id: %s."),
         ERROR_INVALID_IDV_CLAIM_ID("10005", "Identity verification claim cannot be found with the " +
