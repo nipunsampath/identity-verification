@@ -83,9 +83,9 @@ public class Constants {
                 "The update request body is incomplete of Identity verification claim: %s."),
 
         // Server errors - IDVP user APIs.
-        ERROR_RETRIEVING_IDV_CLAIM_METADATA("15000",
-                "Error retrieving identity verification claim metadata.",
-                "Server encountered an error while retrieving the identity verification claim metadata."),
+        ERROR_PERFORMING_IDENTITY_VERIFICATION("15000",
+                "Error performing identity verification.",
+                "Encountered an error while performing the identity verification for the user: %s."),
         ERROR_RETRIEVING_USER_IDV_CLAIMS("15001",
                 "Unable to retrieve identity verification claims",
                 "Server encountered an error while retrieving the identity verification claim " +

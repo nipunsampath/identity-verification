@@ -71,28 +71,48 @@ public abstract class AbstractIdentityVerifier implements IdentityVerifier {
     }
 
     /**
-     * Get the claims that need to be verified along with the values of those claims.
+     * Get the claims that need to be verified along with the values of those claims. This will return a map with IDV
+     * provider's claim name as the key of the map and the value of the claim
      *
      * @param idVProvider IdentityVerificationProvider.
-     * @return Map of IdVConfigProperties.
+     * @return Map of Idv Claims with values.
      */
-    public Map<String, String> getIdVPClaimWithValueMap(IdVProvider idVProvider,
-                                                       IdentityVerifierData identityVerifierData) {
+    public Map<String, String> getIdVPClaimWithValueMap(String userId, IdVProvider idVProvider,
+                                                        IdentityVerifierData identityVerifierData, int tenantId)
+            throws IdentityVerificationServerException {
 
         Map<String, String> idVClaimMap = idVProvider.getClaimMappings();
         List<IdVClaim> idVClaimList = identityVerifierData.getIdVClaims();
         Map<String, String> idVPClaimWithValueMap = new HashMap<>();
-        for (IdVClaim idVClaim : idVClaimList) {
-            idVPClaimWithValueMap.put(idVClaimMap.get(idVClaim.getClaimUri()), idVClaim.getClaimValue());
+        UniqueIDUserStoreManager uniqueIDUserStoreManager;
+        try {
+            uniqueIDUserStoreManager = getUniqueIdEnabledUserStoreManager(tenantId);
+            for (IdVClaim idVClaim : idVClaimList) {
+                String claimValue = idVClaim.getClaimValue();
+                String claimUri = idVClaim.getClaimUri();
+                if (StringUtils.isBlank(claimValue)) {
+                    claimValue = uniqueIDUserStoreManager.getUserClaimValueWithID(userId, claimUri, null);
+                }
+                idVPClaimWithValueMap.put(idVClaimMap.get(idVClaim.getClaimUri()), claimValue);
+            }
+            return idVPClaimWithValueMap;
+
+        } catch (UserStoreException e) {
+            if (StringUtils.isNotBlank(e.getMessage()) &&
+                    e.getMessage().contains(ERROR_CODE_NON_EXISTING_USER.getCode())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User does not exist with the given user id: " + userId);
+                }
+            }
+            throw IdentityVerificationExceptionMgt.handleServerException(
+                    IdentityVerificationConstants.ErrorMessage.ERROR_RETRIEVING_IDV_CLAIM_MAPPINGS, userId, e);
         }
-        return idVPClaimWithValueMap;
     }
 
     /**
      * Get config property map of Identity Verification Provider.
      *
      * @param idVProvider Identity Verification Provider.
-     *
      * @return Config property map of Identity Verification Provider
      */
     public Map<String, String> getIdVConfigPropertyMap(IdVProvider idVProvider) {

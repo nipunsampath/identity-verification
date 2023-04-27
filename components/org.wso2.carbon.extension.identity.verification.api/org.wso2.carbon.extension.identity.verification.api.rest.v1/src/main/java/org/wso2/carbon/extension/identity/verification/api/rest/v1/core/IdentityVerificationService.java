@@ -17,9 +17,9 @@
  */
 package org.wso2.carbon.extension.identity.verification.api.rest.v1.core;
 
-import org.json.JSONObject;
 import org.wso2.carbon.extension.identity.verification.api.rest.common.Constants;
 import org.wso2.carbon.extension.identity.verification.api.rest.common.IdentityVerificationServiceHolder;
+import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.Claim;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.ProviderProperty;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerificationClaimRequest;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerificationClaimResponse;
@@ -33,9 +33,7 @@ import org.wso2.carbon.extension.identity.verification.mgt.model.IdentityVerifie
 import org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
@@ -242,7 +240,7 @@ public class IdentityVerificationService {
                         Constants.ErrorMessage.ERROR_CODE_USER_ID_NOT_FOUND, userId);
             } else {
                 throw IdentityVerificationUtils.handleIdVException(e,
-                        Constants.ErrorMessage.ERROR_RETRIEVING_IDV_CLAIM_METADATA, null);
+                        Constants.ErrorMessage.ERROR_PERFORMING_IDENTITY_VERIFICATION, userId);
             }
         }
         return getVerificationPostResponse(identityVerifierResponse);
@@ -293,6 +291,12 @@ public class IdentityVerificationService {
             idVProperty.setName(property.getKey());
             idVProperty.setValue(property.getValue());
             identityVerifier.addIdVProperty(idVProperty);
+        }
+        for (Claim claim : verifyRequest.getClaims()) {
+            IdVClaim idVClaim = new IdVClaim();
+            idVClaim.setClaimUri(claim.getUri());
+            idVClaim.setClaimValue(claim.getValue());
+            identityVerifier.addIdVClaimProperty(idVClaim);
         }
         return identityVerifier;
     }
