@@ -30,7 +30,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.CLAIM_URI;
 import static org.wso2.carbon.extension.identity.verification.mgt.utils.IdentityVerificationConstants.ErrorMessage.ERROR_ADDING_IDV_CLAIM;
@@ -280,13 +282,19 @@ public class IdentityVerificationClaimDAOImpl implements IdentityVerificationCla
 
     private byte[] getMetadata(IdVClaim idVClaim) {
 
-        String metadataString = idVClaim.getMetadata().toString();
+        JSONObject metadataJsonObject = new JSONObject(idVClaim.getMetadata());
+        String metadataString = metadataJsonObject.toString();
         return metadataString.getBytes(StandardCharsets.UTF_8);
     }
 
-    private JSONObject getMetadataJsonObject(byte[] metadata) {
+    private Map<String, Object> getMetadataJsonObject(byte[] metadata) {
 
+        Map<String, Object> metadataMap = new HashMap<>();
         String metadataString = new String(metadata, StandardCharsets.UTF_8);
-        return new JSONObject(metadataString);
+        JSONObject metadataJSONObject = new JSONObject(metadataString);
+        for (String key : metadataJSONObject.keySet()) {
+            metadataMap.put(key, metadataJSONObject.get(key));
+        }
+        return metadataMap;
     }
 }

@@ -264,8 +264,7 @@ public class IdentityVerificationService {
             idVClaim.setClaimUri(verificationClaim.getUri());
             idVClaim.setIsVerified(verificationClaim.getIsVerified());
             idVClaim.setIdVPId(verificationClaim.getIdvProviderId());
-            Map<String, Object> claimMetadata = verificationClaim.getClaimMetadata();
-            idVClaim.setMetadata(new JSONObject(claimMetadata));
+            idVClaim.setMetadata(verificationClaim.getClaimMetadata());
             idVClaimList.add(idVClaim);
         }
         return idVClaimList;
@@ -278,8 +277,7 @@ public class IdentityVerificationService {
         idVClaim.setUuid(claimId);
         idVClaim.setUserId(userId);
         idVClaim.setIsVerified(verificationClaimUpdateRequest.getIsVerified());
-        Map<String, Object> claimMetadata = verificationClaimUpdateRequest.getClaimMetadata();
-        idVClaim.setMetadata(new JSONObject(claimMetadata));
+        idVClaim.setMetadata(verificationClaimUpdateRequest.getClaimMetadata());
         return idVClaim;
     }
 
@@ -309,7 +307,7 @@ public class IdentityVerificationService {
             verificationClaimResponse.setId(idVClaim.getUuid());
             verificationClaimResponse.setUri(idVClaim.getClaimUri());
             verificationClaimResponse.setIsVerified(idVClaim.isVerified());
-            verificationClaimResponse.setClaimMetadata(getClaimMetadataMap(idVClaim.getMetadata()));
+            verificationClaimResponse.setClaimMetadata(idVClaim.getMetadata());
             verificationPostResponse.addClaimsItem(verificationClaimResponse);
         }
         return verificationPostResponse;
@@ -321,7 +319,7 @@ public class IdentityVerificationService {
         verificationClaimResponse.setId(idVClaim.getUuid());
         verificationClaimResponse.setUri(idVClaim.getClaimUri());
         verificationClaimResponse.setIsVerified(idVClaim.isVerified());
-        verificationClaimResponse.setClaimMetadata(getClaimMetadataMap(idVClaim.getMetadata()));
+        verificationClaimResponse.setClaimMetadata(idVClaim.getMetadata());
         return verificationClaimResponse;
     }
 
@@ -333,7 +331,7 @@ public class IdentityVerificationService {
             verificationClaimResponse.setId(idVClaim.getUuid());
             verificationClaimResponse.setUri(idVClaim.getClaimUri());
             verificationClaimResponse.setIsVerified(idVClaim.isVerified());
-            verificationClaimResponse.setClaimMetadata(getClaimMetadataMap(idVClaim.getMetadata()));
+            verificationClaimResponse.setClaimMetadata(idVClaim.getMetadata());
             verificationClaimResponseList.add(verificationClaimResponse);
         }
         return verificationClaimResponseList;
@@ -348,24 +346,9 @@ public class IdentityVerificationService {
             verificationClaimResponse.setId(idVClaim.getUuid());
             verificationClaimResponse.setUri(idVClaim.getClaimUri());
             verificationClaimResponse.setIsVerified(idVClaim.isVerified());
-            verificationClaimResponse.setClaimMetadata(getClaimMetadataMap(idVClaim.getMetadata()));
+            verificationClaimResponse.setClaimMetadata(idVClaim.getMetadata());
             verificationClaimList.add(verificationClaimResponse);
         }
         return verificationClaimList;
-    }
-
-    /**
-     * Get the claim metadata map from the JSON object.
-     *
-     * @param claimMetadataJson JSON object of the claim metadata.
-     * @return Map of the claim metadata.
-     */
-    private Map<String, Object> getClaimMetadataMap(JSONObject claimMetadataJson) {
-
-        Map<String, Object> claimMetadata = new HashMap<>();
-        for (String key : claimMetadataJson.keySet()) {
-            claimMetadata.put(key, claimMetadataJson.get(key).toString());
-        }
-        return claimMetadata;
     }
 }

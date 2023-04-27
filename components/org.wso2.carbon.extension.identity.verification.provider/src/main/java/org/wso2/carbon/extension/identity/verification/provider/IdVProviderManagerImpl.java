@@ -33,8 +33,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_CODE_GET_DAO;
-import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_EMPTY_IDVP_;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_EMPTY_IDVP;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_IDVP_ALREADY_EXISTS;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_UPDATE_IDVP;
 
 /**
  * This class contains the implementation for the IdVProviderManager.
@@ -111,9 +112,9 @@ public class IdVProviderManagerImpl implements IdVProviderManager {
             throw IdVProviderMgtExceptionManagement.handleServerException(IdVProviderMgtConstants.ErrorMessage.
                     ERROR_UPDATING_IDV_PROVIDER);
         }
-        if (isIdVProviderExistsByName(updatedIdVProvider.getIdVProviderName(), tenantId)) {
+        if (!StringUtils.equals(updatedIdVProvider.getIdVProviderName(), oldIdVProvider.getIdVProviderName())) {
             throw IdVProviderMgtExceptionManagement.
-                    handleClientException(ERROR_IDVP_ALREADY_EXISTS, updatedIdVProvider.getIdVProviderName());
+                    handleClientException(ERROR_UPDATE_IDVP, updatedIdVProvider.getIdVProviderName());
         }
         getIdVProviderDAO().updateIdVProvider(oldIdVProvider, updatedIdVProvider, tenantId);
         return updatedIdVProvider;
@@ -141,7 +142,7 @@ public class IdVProviderManagerImpl implements IdVProviderManager {
 
         if (StringUtils.isEmpty(idvProviderName)) {
             throw IdVProviderMgtExceptionManagement.
-                    handleClientException(IdVProviderMgtConstants.ErrorMessage.ERROR_EMPTY_IDVP_);
+                    handleClientException(IdVProviderMgtConstants.ErrorMessage.ERROR_EMPTY_IDVP);
         }
         return getIdVProviderDAO().isIdVProviderExistsByName(idvProviderName, tenantId);
     }
@@ -151,7 +152,7 @@ public class IdVProviderManagerImpl implements IdVProviderManager {
             throws IdVProviderMgtException {
 
         if (StringUtils.isEmpty(idVPName)) {
-            throw IdVProviderMgtExceptionManagement.handleClientException(ERROR_EMPTY_IDVP_);
+            throw IdVProviderMgtExceptionManagement.handleClientException(ERROR_EMPTY_IDVP);
         }
         return getIdVProviderDAO().getIdVProviderByName(idVPName, tenantId);
     }

@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.extension.identity.verification.mgt.model;
 
-import org.json.JSONObject;
+import java.util.Map;
 
 /**
  * IdVClaim model class.
@@ -31,7 +31,7 @@ public class IdVClaim {
     private String userId;
     private boolean status;
     private String idVPId;
-    private JSONObject metadata;
+    private Map<String, Object> metadata;
 
     public String getId() {
 
@@ -73,16 +73,6 @@ public class IdVClaim {
         this.status = status;
     }
 
-    public JSONObject getMetadata() {
-
-        return metadata;
-    }
-
-    public void setMetadata(JSONObject metadata) {
-
-        this.metadata = metadata;
-    }
-
     public String getClaimUri() {
 
         return claimUri;
@@ -111,5 +101,15 @@ public class IdVClaim {
     public void setIdVPId(String idVPId) {
 
         this.idVPId = idVPId;
+    }
+
+    public Map<String, Object> getMetadata() {
+
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+
+        this.metadata = metadata;
     }
 }

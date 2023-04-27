@@ -697,7 +697,7 @@ paths:
       tags:
         - Identity Verification Providers
       summary: |
-        Add a new identity verification providers.
+        Add a new identity verification provider.
       description: >
         This API provides the capability to add an identity verification provider.
         <b>Permission required:</b> <br>

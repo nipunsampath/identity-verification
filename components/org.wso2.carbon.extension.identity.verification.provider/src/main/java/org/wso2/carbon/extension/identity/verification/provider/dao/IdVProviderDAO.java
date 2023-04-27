@@ -79,9 +79,8 @@ public interface IdVProviderDAO {
      * @param tenantId       Tenant ID.
      * @throws IdVProviderMgtException Identity Verification Provider Management Exception.
      */
-    void updateIdVProvider(IdVProvider oldIdVProvider,
-                           IdVProvider newIdVProvider, int tenantId)
-            throws IdVProviderMgtException;
+    void updateIdVProvider(IdVProvider oldIdVProvider, IdVProvider newIdVProvider,
+                           int tenantId) throws IdVProviderMgtException;
 
     /**
      * Get Identity Verification Providers.

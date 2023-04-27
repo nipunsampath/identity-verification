@@ -78,7 +78,8 @@ public class IdVProviderMgtConstants {
         ERROR_IDVP_ALREADY_EXISTS("60000",
                 "An Identity Verification Provider already exists with the name: %s."),
         ERROR_EMPTY_IDVP_ID("60001", "Identity Verification Provider ID value is empty."),
-        ERROR_EMPTY_IDVP_("60002", "Identity Verification Provider Name is empty."),
+        ERROR_EMPTY_IDVP("60002", "Identity Verification Provider Name is empty."),
+        ERROR_UPDATE_IDVP("60003", "Updating Identity Verification Provider Name is not allowed."),
 
         // Server errors.
         ERROR_RETRIEVING_IDV_PROVIDERS("65000",
