@@ -20,7 +20,6 @@ package org.wso2.carbon.extension.identity.verification.mgt.internal;
 import org.wso2.carbon.extension.identity.verification.mgt.IdentityVerifierFactory;
 import org.wso2.carbon.extension.identity.verification.mgt.dao.IdentityVerificationClaimDAO;
 import org.wso2.carbon.extension.identity.verification.provider.IdVProviderManager;
-import org.wso2.carbon.extension.identity.verification.provider.dao.IdVProviderDAO;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.ArrayList;
@@ -106,7 +105,7 @@ public class IdentityVerificationDataHolder {
         if (identityVerifierFactoryMap == null) {
             identityVerifierFactoryMap = new HashMap<>();
         }
-        identityVerifierFactoryMap.put(identityVerifierFactory.getIdentityVerifierName(), identityVerifierFactory);
+        identityVerifierFactoryMap.put(identityVerifierFactory.getIdentityVerifierType(), identityVerifierFactory);
     }
 
     /**
@@ -130,7 +129,7 @@ public class IdentityVerificationDataHolder {
      */
     public void unbindIdentityVerifierFactory(IdentityVerifierFactory identityVerifierFactory) {
 
-        identityVerifierFactoryMap.remove(identityVerifierFactory.getIdentityVerifierName());
+        identityVerifierFactoryMap.remove(identityVerifierFactory.getIdentityVerifierType());
     }
 
     /**

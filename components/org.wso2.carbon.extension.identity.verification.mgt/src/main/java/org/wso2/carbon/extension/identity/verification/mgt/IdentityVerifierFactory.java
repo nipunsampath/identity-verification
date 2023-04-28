@@ -31,9 +31,9 @@ public interface IdentityVerifierFactory {
     IdentityVerifier getIdentityVerifier(String identityVerifierType);
 
     /**
-     * Get the identity verifier name.
+     * Get the type of the identity verifier.
      *
-     * @return Identity verifier name.
+     * @return Identity verifier type.
      */
-    String getIdentityVerifierName();
+    String getIdentityVerifierType();
 }
