@@ -101,11 +101,10 @@ public class IdentityVerificationConstants {
                 "Error while validating identity verification provider id: %s."),
         ERROR_CHECKING_USER_ID_EXISTENCE("15008", "Error while checking the user id existence."),
         ERROR_GETTING_USER_STORE("15009", "Error while getting the user store."),
-        ERROR_CREATING_HTTP_CLIENT("15010", "Error occurred while creating HTTP client."),
-        ERROR_RETRIEVING_IDV_PROVIDER("15011", "Error while retrieving identity verification provider."),
-        ERROR_RETRIEVING_IDV_CLAIM_MAPPINGS("15012",
+        ERROR_RETRIEVING_IDV_PROVIDER("15010", "Error while retrieving identity verification provider."),
+        ERROR_RETRIEVING_IDV_CLAIM_MAPPINGS("15011",
                 "Error while retrieving identity verification claim mappings."),
-        ERROR_CODE_GET_DAO("15013", "No IdV Claim DAOs are registered.");
+        ERROR_CODE_GET_DAO("15012", "No IdV Claim DAOs are registered.");
 
         private final String code;
         private final String message;

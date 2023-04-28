@@ -111,8 +111,9 @@ public class CachedBackedIdVProviderDAO implements IdVProviderDAO {
     public void updateIdVProvider(IdVProvider oldIdVProvider, IdVProvider newIdVProvider, int tenantId)
             throws IdVProviderMgtException {
 
-        idVProviderManagerDAO.updateIdVProvider(oldIdVProvider, newIdVProvider, tenantId);
         deleteIdVPFromCache(newIdVProvider, tenantId);
+        idVProviderManagerDAO.updateIdVProvider(oldIdVProvider, newIdVProvider, tenantId);
+
     }
 
     @Override
@@ -151,8 +152,8 @@ public class CachedBackedIdVProviderDAO implements IdVProviderDAO {
     @Override
     public void deleteIdVProvider(String idVProviderId, int tenantId) throws IdVProviderMgtException {
 
-        idVProviderManagerDAO.deleteIdVProvider(idVProviderId, tenantId);
         deleteIdVPFromCacheByIdVProviderId(idVProviderId, tenantId);
+        idVProviderManagerDAO.deleteIdVProvider(idVProviderId, tenantId);
     }
 
     private IdVProvider getIdVPFromCacheById(String idVProviderId, int tenantId) {

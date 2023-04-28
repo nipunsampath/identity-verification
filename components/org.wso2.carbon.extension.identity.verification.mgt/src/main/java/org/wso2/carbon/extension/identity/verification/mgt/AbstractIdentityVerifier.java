@@ -88,11 +88,8 @@ public abstract class AbstractIdentityVerifier implements IdentityVerifier {
         try {
             uniqueIDUserStoreManager = getUniqueIdEnabledUserStoreManager(tenantId);
             for (IdVClaim idVClaim : idVClaimList) {
-                String claimValue = idVClaim.getClaimValue();
                 String claimUri = idVClaim.getClaimUri();
-                if (StringUtils.isBlank(claimValue)) {
-                    claimValue = uniqueIDUserStoreManager.getUserClaimValueWithID(userId, claimUri, null);
-                }
+                String claimValue = uniqueIDUserStoreManager.getUserClaimValueWithID(userId, claimUri, null);
                 idVPClaimWithValueMap.put(idVClaimMap.get(idVClaim.getClaimUri()), claimValue);
             }
             return idVPClaimWithValueMap;
@@ -123,17 +120,6 @@ public abstract class AbstractIdentityVerifier implements IdentityVerifier {
             configPropertyMap.put(idVConfigProperty.getName(), idVConfigProperty.getValue());
         }
         return configPropertyMap;
-    }
-
-    /**
-     * Get Identity Verification Provider's Claim Mappings.
-     *
-     * @param idVProvider IdentityVerificationProvider.
-     * @return Local and IdVProvider claim Map.
-     */
-    public Map<String, String> getClaimMappings(IdVProvider idVProvider) {
-
-        return idVProvider.getClaimMappings();
     }
 
     /**
@@ -179,42 +165,6 @@ public abstract class AbstractIdentityVerifier implements IdentityVerifier {
 
         IdentityVerificationManager identityVerificationManager = new IdentityVerificationManagerImpl();
         return identityVerificationManager.updateIdVClaims(userId, idVClaims, tenantId);
-    }
-
-    /**
-     * Get Identity Verification Claims as Map with the identity verification provider's claim name as map key
-     * claim value as map value.
-     *
-     * @param userId      User Id.
-     * @param idVProvider IdentityVerificationProvider.
-     * @param tenantId    Tenant Id.
-     * @return Map with the identity verification provider's claim name as map key claim value as map value.
-     */
-    public Map<String, String> getIdVClaimsWithValues(String userId, IdVProvider idVProvider, int tenantId)
-            throws IdentityVerificationException {
-
-        Map<String, String> claimMap = getClaimMappings(idVProvider);
-        Map<String, String> verificationClaims = new HashMap<>();
-        UniqueIDUserStoreManager uniqueIDUserStoreManager;
-        try {
-            uniqueIDUserStoreManager = getUniqueIdEnabledUserStoreManager(tenantId);
-            for (Map.Entry<String, String> claimMapping : claimMap.entrySet()) {
-                String idVClaimUri = claimMapping.getValue();
-                String claimValue =
-                        uniqueIDUserStoreManager.getUserClaimValueWithID(userId, claimMapping.getKey(), null);
-                verificationClaims.put(idVClaimUri, claimValue);
-            }
-        } catch (UserStoreException e) {
-            if (StringUtils.isNotBlank(e.getMessage()) &&
-                    e.getMessage().contains(ERROR_CODE_NON_EXISTING_USER.getCode())) {
-                if (log.isDebugEnabled()) {
-                    log.debug("User does not exist with the given user id: " + userId);
-                }
-            }
-            throw IdentityVerificationExceptionMgt.handleServerException(
-                    IdentityVerificationConstants.ErrorMessage.ERROR_RETRIEVING_IDV_CLAIM_MAPPINGS, userId, e);
-        }
-        return verificationClaims;
     }
 
     private UniqueIDUserStoreManager getUniqueIdEnabledUserStoreManager(int tenantId)

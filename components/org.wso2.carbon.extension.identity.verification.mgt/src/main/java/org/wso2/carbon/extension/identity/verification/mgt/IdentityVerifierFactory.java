@@ -25,10 +25,10 @@ public interface IdentityVerifierFactory {
     /**
      * Get the identity verifier by passing the identity verifier name.
      *
-     * @param identityVerifierName Identity verifier name.
+     * @param identityVerifierType Type of the identity verifier.
      * @return IdentityVerifier.
      */
-    IdentityVerifier getIdentityVerifier(String identityVerifierName);
+    IdentityVerifier getIdentityVerifier(String identityVerifierType);
 
     /**
      * Get the identity verifier name.
