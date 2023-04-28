@@ -27,6 +27,7 @@ public class IdVProviderMgtConstants {
     public static final String ID = "ID";
     public static final String IDVP_UUID = "UUID";
     public static final String NAME = "NAME";
+    public static final String IDVP_TYPE = "IDVP_TYPE";
     public static final String DESCRIPTION = "DESCRIPTION";
     public static final String IS_ENABLED = "IS_ENABLED";
     public static final String PROPERTY_KEY = "PROPERTY_KEY";
@@ -51,17 +52,17 @@ public class IdVProviderMgtConstants {
                 "IDVP_CONFIG WHERE IDVP_ID=? AND TENANT_ID=?";
         public static final String GET_IDVP_CLAIMS_SQL = "SELECT CLAIM, LOCAL_CLAIM FROM " +
                 "IDVP_CLAIM_MAPPING WHERE IDVP_ID=? AND TENANT_ID=?";
-        public static final String GET_IDVPS_SQL = "SELECT ID, UUID, NAME, DESCRIPTION, IS_ENABLED FROM " +
+        public static final String GET_IDVPS_SQL = "SELECT ID, UUID, NAME, IDVP_TYPE, DESCRIPTION, IS_ENABLED FROM " +
                 "IDVP WHERE TENANT_ID=? ORDER BY UUID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         public static final String GET_COUNT_OF_IDVPS_SQL = "SELECT COUNT(*) FROM IDVP WHERE TENANT_ID=?";
         public static final String DELETE_IDV_SQL = "DELETE FROM IDVP WHERE UUID=? AND TENANT_ID=?";
-        public static final String ADD_IDVP_SQL = "INSERT INTO IDVP(UUID, TENANT_ID, NAME, " +
-                "DESCRIPTION, IS_ENABLED) VALUES (?, ?, ?, ?, ?)";
+        public static final String ADD_IDVP_SQL = "INSERT INTO IDVP(UUID, TENANT_ID, NAME, IDVP_TYPE, " +
+                "DESCRIPTION, IS_ENABLED) VALUES (?, ?, ?, ?, ?, ?)";
         public static final String ADD_IDVP_CONFIG_SQL = "INSERT INTO IDVP_CONFIG " +
                 "(IDVP_ID, TENANT_ID, PROPERTY_KEY, PROPERTY_VALUE, IS_SECRET) VALUES (?, ?, ?, ?, ?)";
         public static final String ADD_IDVP_CLAIM_SQL = "INSERT INTO IDVP_CLAIM_MAPPING " +
                 "(IDVP_ID, TENANT_ID, CLAIM, LOCAL_CLAIM) VALUES (?, ?, ?, ?)";
-        public static final String UPDATE_IDVP_SQL = "UPDATE IDVP SET NAME=?, DESCRIPTION=?, " +
+        public static final String UPDATE_IDVP_SQL = "UPDATE IDVP SET NAME=?, IDVP_TYPE=?, DESCRIPTION=?, " +
                 "IS_ENABLED=? WHERE UUID=? AND TENANT_ID=?";
         public static final String DELETE_IDVP_CONFIG_SQL = "DELETE FROM IDVP_CONFIG " +
                 "WHERE IDVP_ID=? AND TENANT_ID=?";

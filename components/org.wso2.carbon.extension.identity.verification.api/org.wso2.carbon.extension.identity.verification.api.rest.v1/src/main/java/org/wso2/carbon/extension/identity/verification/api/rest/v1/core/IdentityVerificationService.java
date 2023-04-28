@@ -19,7 +19,6 @@ package org.wso2.carbon.extension.identity.verification.api.rest.v1.core;
 
 import org.wso2.carbon.extension.identity.verification.api.rest.common.Constants;
 import org.wso2.carbon.extension.identity.verification.api.rest.common.IdentityVerificationServiceHolder;
-import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.Claim;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.ProviderProperty;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerificationClaimRequest;
 import org.wso2.carbon.extension.identity.verification.api.rest.v1.model.VerificationClaimResponse;
@@ -282,7 +281,7 @@ public class IdentityVerificationService {
     private IdentityVerifierData getIdentityVerifierData(VerifyRequest verifyRequest) {
 
         IdentityVerifierData identityVerifier = new IdentityVerifierData();
-        identityVerifier.setIdVProviderName(verifyRequest.getIdentityVerificationProvider());
+        identityVerifier.setIdVProviderId(verifyRequest.getIdVProviderId());
         if (verifyRequest.getProperties() == null) {
             return identityVerifier;
         }
@@ -292,10 +291,9 @@ public class IdentityVerificationService {
             idVProperty.setValue(property.getValue());
             identityVerifier.addIdVProperty(idVProperty);
         }
-        for (Claim claim : verifyRequest.getClaims()) {
+        for (String claim : verifyRequest.getClaims()) {
             IdVClaim idVClaim = new IdVClaim();
-            idVClaim.setClaimUri(claim.getUri());
-            idVClaim.setClaimValue(claim.getValue());
+            idVClaim.setClaimUri(claim);
             identityVerifier.addIdVClaimProperty(idVClaim);
         }
         return identityVerifier;
@@ -304,8 +302,7 @@ public class IdentityVerificationService {
     private VerificationPostResponse getVerificationPostResponse(IdentityVerifierData identityVerifierData) {
 
         VerificationPostResponse verificationPostResponse = new VerificationPostResponse();
-        verificationPostResponse.setIdentityVerificationProvider(identityVerifierData.
-                getIdVProviderName());
+        verificationPostResponse.setIdVProviderId(identityVerifierData.getIdVProviderId());
         for (IdVClaim idVClaim : identityVerifierData.getIdVClaims()) {
             VerificationClaimResponse verificationClaimResponse = new VerificationClaimResponse();
             verificationClaimResponse.setId(idVClaim.getUuid());

@@ -61,7 +61,7 @@ public abstract class AbstractIdentityVerifier implements IdentityVerifier {
             throws IdentityVerificationException {
 
         try {
-            String idVProviderName = identityVerifierData.getIdVProviderName();
+            String idVProviderName = identityVerifierData.getIdVProviderId();
             return IdentityVerificationDataHolder.getInstance().
                     getIdVProviderManager().getIdVProviderByName(idVProviderName, tenantId);
         } catch (IdVProviderMgtException e) {

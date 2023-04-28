@@ -55,6 +55,7 @@ import static org.wso2.carbon.extension.identity.verification.provider.util.IdVP
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_STORING_IDV_PROVIDER_SECRETS;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ErrorMessage.ERROR_UPDATING_IDV_PROVIDER;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.ID;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.IDVP_TYPE;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.IS_ENABLED;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.IS_SECRET;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.LOCAL_CLAIM;
@@ -152,8 +153,9 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
             addIdVProviderStmt.setString(1, idVProviderUuid);
             addIdVProviderStmt.setInt(2, tenantId);
             addIdVProviderStmt.setString(3, idVProvider.getIdVProviderName());
-            addIdVProviderStmt.setString(4, idVProvider.getIdVProviderDescription());
-            addIdVProviderStmt.setString(5, idVProvider.isEnabled() ? "1" : "0");
+            addIdVProviderStmt.setString(4, idVProvider.getType());
+            addIdVProviderStmt.setString(5, idVProvider.getIdVProviderDescription());
+            addIdVProviderStmt.setString(6, idVProvider.isEnabled() ? "1" : "0");
             addIdVProviderStmt.executeUpdate();
 
             // Get the just added identity verification provider along with the id.
@@ -177,10 +179,11 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false);
              PreparedStatement updateIdVProviderStmt = connection.prepareStatement(UPDATE_IDVP_SQL)) {
                 updateIdVProviderStmt.setString(1, newIdVProvider.getIdVProviderName());
-                updateIdVProviderStmt.setString(2, newIdVProvider.getIdVProviderDescription());
-                updateIdVProviderStmt.setString(3, newIdVProvider.isEnabled() ? "1" : "0");
-                updateIdVProviderStmt.setString(4, oldIdVProvider.getIdVProviderUuid());
-                updateIdVProviderStmt.setInt(5, tenantId);
+                updateIdVProviderStmt.setString(2, newIdVProvider.getType());
+                updateIdVProviderStmt.setString(3, newIdVProvider.getIdVProviderDescription());
+                updateIdVProviderStmt.setString(4, newIdVProvider.isEnabled() ? "1" : "0");
+                updateIdVProviderStmt.setString(5, oldIdVProvider.getIdVProviderUuid());
+                updateIdVProviderStmt.setInt(6, tenantId);
                 updateIdVProviderStmt.executeUpdate();
 
             // Update configs of identity verification provider.
@@ -210,6 +213,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
                     idVProvider.setId(idVProviderResultSet.getString(ID));
                     idVProvider.setIdVProviderUUID(idVProviderResultSet.getString(IDVP_UUID));
                     idVProvider.setIdVProviderName(idVProviderResultSet.getString(NAME));
+                    idVProvider.setType(idVProviderResultSet.getString(IDVP_TYPE));
                     idVProvider.
                             setIdVProviderDescription(idVProviderResultSet.getString(DESCRIPTION));
                     idVProvider.setEnabled(idVProviderResultSet.getBoolean(IS_ENABLED));
@@ -264,6 +268,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
                     idVProvider.setId(idVProviderResultSet.getString(ID));
                     idVProvider.setIdVProviderUUID(idVProviderResultSet.getString(IDVP_UUID));
                     idVProvider.setIdVProviderName(idVProviderResultSet.getString(NAME));
+                    idVProvider.setType(idVProviderResultSet.getString(IDVP_TYPE));
                     idVProvider.setIdVProviderDescription(idVProviderResultSet.
                             getString(DESCRIPTION));
                     idVProvider.setEnabled(idVProviderResultSet.getBoolean(IS_ENABLED));

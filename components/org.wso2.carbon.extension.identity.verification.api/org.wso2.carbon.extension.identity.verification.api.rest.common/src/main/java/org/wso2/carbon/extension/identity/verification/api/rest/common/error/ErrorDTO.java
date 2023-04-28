@@ -115,13 +115,12 @@ public class ErrorDTO implements Serializable {
     @Override
     public String toString() {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("class ErrorDTO {\n");
-        sb.append("  code: ").append(code).append("\n");
-        sb.append("  message: ").append(message).append("\n");
-        sb.append("  description: ").append(description).append("\n");
-        sb.append("  traceId: ").append(ref).append("\n");
-        sb.append("}\n");
-        return sb.toString();
+        String sb = "class ErrorDTO {\n" +
+                "  code: " + code + "\n" +
+                "  message: " + message + "\n" +
+                "  description: " + description + "\n" +
+                "  traceId: " + ref + "\n" +
+                "}\n";
+        return sb;
     }
 }

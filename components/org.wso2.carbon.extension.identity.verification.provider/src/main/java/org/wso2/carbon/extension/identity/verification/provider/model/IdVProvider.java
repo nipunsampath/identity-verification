@@ -27,6 +27,7 @@ public class IdVProvider {
 
     private String id;
     private String uuid;
+    private String type;
     private String idVProviderName;
     private boolean isEnabled = false;
     private String idVProviderDescription;
@@ -41,6 +42,16 @@ public class IdVProvider {
     public void setId(String id) {
 
         this.id = id;
+    }
+
+    public String getType() {
+
+        return type;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
     }
 
     public String getIdVProviderName() {

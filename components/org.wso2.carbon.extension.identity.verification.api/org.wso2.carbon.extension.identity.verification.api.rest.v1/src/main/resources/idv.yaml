@@ -959,9 +959,9 @@ components:
     verificationPostResponse:
       type: object
       properties:
-        identityVerificationProvider:
+        idVProviderId:
           type: string
-          example: ONFIDO
+          example: "d75b8685-383a-4320-a555-80a3eecb5af2"
         claims:
           type: array
           items:
@@ -1012,7 +1012,7 @@ components:
     claimMetadata:
       type: object
       additionalProperties: true
-      example: '{"source": "evidentID", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
+      example: '{"source": "ONFIDO", "trackingId": "123e4567-e89b-12d3-a456-556642440000" }'
     verificationClaimPostRequest:
       type: array
       items:
@@ -1024,13 +1024,16 @@ components:
     verifyRequest:
       type: object
       properties:
-        identityVerificationProvider:
+        idVProviderId:
           type: string
-          example: "ONFIDO"
+          example: "d75b8685-383a-4320-a555-80a3eecb5af2"
         claims:
           type: array
           items:
-            $ref: '#/components/schemas/claim'
+            type: string
+          example:
+            - http://wso2.org/claims/dob
+            - http://wso2.org/claims/country
         properties:
           type: array
           items:
@@ -1060,9 +1063,12 @@ components:
         id:
           type: string
           example: 123e4567-e89b-12d3-a456-556642440000
+        Type:
+          type: string
+          example: ONFIDO
         Name:
           type: string
-          example: EvidentID
+          example: ONFIDO
         description:
           type: string
           example: identity verification provider
@@ -1080,9 +1086,12 @@ components:
     IdVProviderRequest:
       type: object
       properties:
+        Type:
+          type: string
+          example: ONFIDO
         Name:
           type: string
-          example: EvidentID
+          example: ONFIDO
         description:
           type: string
           example: identity verification provider
@@ -1098,6 +1107,7 @@ components:
           items:
             $ref: '#/components/schemas/ConfigProperty'
       required:
+        - Type
         - Name
         - isEnabled
     ConfigProperty:
@@ -1105,13 +1115,13 @@ components:
       properties:
         key:
           type: string
-          example: somePropertyKey
+          example: token
         value:
           type: string
           example: somePropertyValue
         isSecret:
           type: boolean
-          example: false
+          example: true
     ProviderProperty:
       type: object
       properties:
@@ -1130,15 +1140,6 @@ components:
         idvpClaim:
           type: string
           example: birthday
-    claim:
-      type: object
-      properties:
-        uri:
-          type: string
-          example: 'http://wso2.org/claims/dob'
-        value:
-          type: string
-          example: 10-11-1995
   securitySchemes:
     BasicAuth:
       type: http

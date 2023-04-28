@@ -194,8 +194,7 @@ public class IdentityVerificationProviderService {
 
         int tenantId = getTenantId();
         try {
-            IdentityVerificationServiceHolder.getIdVProviderManager().
-                    deleteIdVProvider(idVProviderId, tenantId);
+            IdentityVerificationServiceHolder.getIdVProviderManager().deleteIdVProvider(idVProviderId, tenantId);
         } catch (IdVProviderMgtException e) {
             throw handleIdVException(e, Constants.ErrorMessage.ERROR_DELETING_IDVP, idVProviderId);
         }
@@ -214,9 +213,9 @@ public class IdentityVerificationProviderService {
 
     private IdVProviderResponse getIdVProviderResponse(IdVProvider idVProvider) {
 
-        // todo: change the idvp name
         IdVProviderResponse idvProviderResponse = new IdVProviderResponse();
         idvProviderResponse.setId(idVProvider.getIdVProviderUuid());
+        idvProviderResponse.setType(idVProvider.getType());
         idvProviderResponse.setName(idVProvider.getIdVProviderName());
         idvProviderResponse.setIsEnabled(idVProvider.isEnabled());
         idvProviderResponse.setDescription(idVProvider.getIdVProviderDescription());
@@ -237,6 +236,7 @@ public class IdentityVerificationProviderService {
     private IdVProvider createIdVProvider(IdVProviderRequest idVProviderRequest) {
 
         IdVProvider idVProvider = new IdVProvider();
+        idVProvider.setType(idVProviderRequest.getType());
         idVProvider.setIdVProviderName(idVProviderRequest.getName());
         idVProvider.setIdVProviderDescription(idVProviderRequest.getDescription());
         idVProvider.setEnabled(idVProviderRequest.getIsEnabled());
@@ -256,6 +256,7 @@ public class IdentityVerificationProviderService {
 
         IdVProvider idVProvider = new IdVProvider();
         idVProvider.setIdVProviderUUID(oldIdVProvider.getIdVProviderUuid());
+        idVProvider.setType(idVProviderRequest.getType());
         idVProvider.setIdVProviderName(idVProviderRequest.getName());
         idVProvider.setIdVProviderDescription(idVProviderRequest.getDescription());
         idVProvider.setEnabled(idVProviderRequest.getIsEnabled());
@@ -273,7 +274,6 @@ public class IdentityVerificationProviderService {
     private final Function<ConfigProperty, IdVConfigProperty> propertyToInternal = apiProperty -> {
 
         IdVConfigProperty idVConfigProperty = new IdVConfigProperty();
-        // todo: handle null values
         idVConfigProperty.setName(apiProperty.getKey());
         idVConfigProperty.setValue(apiProperty.getValue());
         Boolean isSecret = apiProperty.getIsSecret();

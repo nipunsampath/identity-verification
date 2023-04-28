@@ -81,22 +81,23 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
             throws IdentityVerificationException {
 
         validateUserId(userId, tenantId);
-        String identityVerifierName = identityVerifierData.getIdVProviderName();
-        if (StringUtils.isBlank(identityVerifierName) || !isValidIdVProviderByName(identityVerifierName, tenantId)) {
+        String idVProviderId = identityVerifierData.getIdVProviderId();
+        if (StringUtils.isBlank(idVProviderId) || !isValidIdVProviderId(idVProviderId, tenantId)) {
             throw IdentityVerificationExceptionMgt.
-                    handleClientException(ERROR_INVALID_IDV_PROVIDER, identityVerifierName);
+                    handleClientException(ERROR_INVALID_IDV_PROVIDER, idVProviderId);
         }
+        String idVProviderType = getIdentityVerifierType(idVProviderId, tenantId);
 
         IdentityVerifierFactory identityVerifierFactory =
-                IdentityVerificationDataHolder.getInstance().getIdentityVerifierFactory(identityVerifierName);
+                IdentityVerificationDataHolder.getInstance().getIdentityVerifierFactory(idVProviderType);
         if (identityVerifierFactory == null) {
             throw IdentityVerificationExceptionMgt.
-                    handleClientException(ERROR_INVALID_IDV_VERIFIER, identityVerifierName);
+                    handleClientException(ERROR_INVALID_IDV_VERIFIER, idVProviderId);
         }
-        IdentityVerifier identityVerifier = identityVerifierFactory.getIdentityVerifier(identityVerifierName);
+        IdentityVerifier identityVerifier = identityVerifierFactory.getIdentityVerifier(idVProviderType);
         if (identityVerifier == null) {
             throw IdentityVerificationExceptionMgt.
-                    handleClientException(ERROR_INVALID_IDV_VERIFIER, identityVerifierName);
+                    handleClientException(ERROR_INVALID_IDV_VERIFIER, idVProviderId);
         }
         return identityVerifier.verifyIdentity(userId, identityVerifierData, tenantId);
     }
@@ -186,7 +187,8 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
     }
 
     @Override
-    public IdVClaim[] getIdVClaims(String userId, String idvProviderId, int tenantId) throws IdentityVerificationException {
+    public IdVClaim[] getIdVClaims(String userId, String idvProviderId, int tenantId)
+            throws IdentityVerificationException {
 
         validateUserId(userId, tenantId);
         if (StringUtils.isNotBlank(idvProviderId)) {
@@ -229,7 +231,6 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
             throw IdentityVerificationExceptionMgt.handleClientException(
                     IdentityVerificationConstants.ErrorMessage.ERROR_IDV_CLAIM_DATA_ALREADY_EXISTS, userId);
         }
-        ;
     }
 
     private boolean isValidIdVProviderId(String idvProviderId, int tenantId) throws IdentityVerificationException {
@@ -242,20 +243,6 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
         } catch (IdVProviderMgtException e) {
             throw IdentityVerificationExceptionMgt.handleServerException(
                     IdentityVerificationConstants.ErrorMessage.ERROR_VALIDATING_IDV_PROVIDER_ID, idvProviderId, e);
-        }
-        return false;
-    }
-
-    private boolean isValidIdVProviderByName(String idvProviderName, int tenantId) throws IdentityVerificationException {
-
-        try {
-            if (IdentityVerificationDataHolder.getInstance().
-                    getIdVProviderManager().isIdVProviderExistsByName(idvProviderName, tenantId)) {
-                return true;
-            }
-        } catch (IdVProviderMgtException e) {
-            throw IdentityVerificationExceptionMgt.handleServerException(
-                    IdentityVerificationConstants.ErrorMessage.ERROR_VALIDATING_IDV_PROVIDER_ID, idvProviderName, e);
         }
         return false;
     }
@@ -312,7 +299,7 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
         return (UniqueIDUserStoreManager) userStoreManager;
     }
 
-    private static String getIdentityVerifierName(int tenantId, String identityVerifierId)
+    private static String getIdentityVerifierType(String identityVerifierId, int tenantId)
             throws IdentityVerificationServerException {
 
         String identityVerifierName;

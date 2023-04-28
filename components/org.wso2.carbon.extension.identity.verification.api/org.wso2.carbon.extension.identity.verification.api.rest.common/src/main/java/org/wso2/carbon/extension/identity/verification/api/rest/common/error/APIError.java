@@ -29,7 +29,7 @@ public class APIError extends WebApplicationException {
     private static final long serialVersionUID = -5096160501895108984L;
     private String message;
     private String code;
-    private ErrorDTO responseEntity;
+    private final ErrorDTO responseEntity;
     private Response.Status status;
 
     /**
