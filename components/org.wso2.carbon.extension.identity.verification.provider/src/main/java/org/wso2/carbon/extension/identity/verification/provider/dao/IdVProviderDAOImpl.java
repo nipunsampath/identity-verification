@@ -19,6 +19,7 @@ package org.wso2.carbon.extension.identity.verification.provider.dao;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.extension.identity.verification.provider.IdVPSecretProcessor;
 import org.wso2.carbon.extension.identity.verification.provider.exception.IdVProviderMgtException;
 import org.wso2.carbon.extension.identity.verification.provider.exception.IdvProviderMgtServerException;
@@ -27,6 +28,7 @@ import org.wso2.carbon.extension.identity.verification.provider.model.IdVProvide
 import org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtExceptionManagement;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.JdbcUtils;
 import org.wso2.carbon.identity.secret.mgt.core.exception.SecretManagementException;
 
 import java.sql.Connection;
@@ -69,7 +71,9 @@ import static org.wso2.carbon.extension.identity.verification.provider.util.IdVP
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.DELETE_IDVP_CONFIG_SQL;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.DELETE_IDV_SQL;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_COUNT_OF_IDVPS_SQL;
-import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVPS_SQL;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVPS_SQL_BY_MSSQL;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVPS_SQL_BY_MYSQL;
+import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVPS_SQL_BY_POSTGRESQL;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVP_BY_NAME_SQL;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVP_CLAIMS_SQL;
 import static org.wso2.carbon.extension.identity.verification.provider.util.IdVProviderMgtConstants.SQLQueries.GET_IDVP_CONFIG_SQL;
@@ -96,7 +100,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
 
         IdVProvider idVProvider;
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
-            idVProvider = getIDVProviderbyUUID(idVPUuid, tenantId, connection);
+            idVProvider = getIDVProviderByUUID(idVPUuid, tenantId, connection);
             if (idVProvider == null) {
                 return null;
             }
@@ -159,7 +163,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
             addIdVProviderStmt.executeUpdate();
 
             // Get the just added identity verification provider along with the id.
-            IdVProvider createdIdVP = getIDVProviderbyUUID(idVProviderUuid, tenantId, connection);
+            IdVProvider createdIdVP = getIDVProviderByUUID(idVProviderUuid, tenantId, connection);
             idVProvider.setId(createdIdVP.getId());
 
             // Add configs of identity verification provider.
@@ -178,13 +182,13 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false);
              PreparedStatement updateIdVProviderStmt = connection.prepareStatement(UPDATE_IDVP_SQL)) {
-                updateIdVProviderStmt.setString(1, newIdVProvider.getIdVProviderName());
-                updateIdVProviderStmt.setString(2, newIdVProvider.getType());
-                updateIdVProviderStmt.setString(3, newIdVProvider.getIdVProviderDescription());
-                updateIdVProviderStmt.setString(4, newIdVProvider.isEnabled() ? "1" : "0");
-                updateIdVProviderStmt.setString(5, oldIdVProvider.getIdVProviderUuid());
-                updateIdVProviderStmt.setInt(6, tenantId);
-                updateIdVProviderStmt.executeUpdate();
+            updateIdVProviderStmt.setString(1, newIdVProvider.getIdVProviderName());
+            updateIdVProviderStmt.setString(2, newIdVProvider.getType());
+            updateIdVProviderStmt.setString(3, newIdVProvider.getIdVProviderDescription());
+            updateIdVProviderStmt.setString(4, newIdVProvider.isEnabled() ? "1" : "0");
+            updateIdVProviderStmt.setString(5, oldIdVProvider.getIdVProviderUuid());
+            updateIdVProviderStmt.setInt(6, tenantId);
+            updateIdVProviderStmt.executeUpdate();
 
             // Update configs of identity verification provider.
             newIdVProvider.setId(oldIdVProvider.getId());
@@ -203,7 +207,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
 
         List<IdVProvider> idVProviders = new ArrayList<>();
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false);
-             PreparedStatement getIdVProvidersStmt = connection.prepareStatement(GET_IDVPS_SQL)) {
+             PreparedStatement getIdVProvidersStmt = generatePrepStmt(connection, tenantId, offset, limit)) {
             getIdVProvidersStmt.setInt(1, tenantId);
             getIdVProvidersStmt.setInt(2, offset);
             getIdVProvidersStmt.setInt(3, limit);
@@ -299,7 +303,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
     public void deleteIdVProvider(String idVProviderId, int tenantId) throws IdVProviderMgtException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
-            IdVProvider idVProvider = getIDVProviderbyUUID(idVProviderId, tenantId, connection);
+            IdVProvider idVProvider = getIDVProviderByUUID(idVProviderId, tenantId, connection);
             if (idVProvider == null) {
                 return;
             }
@@ -318,7 +322,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
         }
     }
 
-    private IdVProvider getIDVProviderbyUUID(String idVPUuid, int tenantId, Connection connection)
+    private IdVProvider getIDVProviderByUUID(String idVPUuid, int tenantId, Connection connection)
             throws IdvProviderMgtServerException {
 
         IdVProvider idVProvider = null;
@@ -331,6 +335,7 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
                     idVProvider = new IdVProvider();
                     idVProvider.setId(idVProviderResultSet.getString(ID));
                     idVProvider.setIdVProviderUUID(idVProviderResultSet.getString(IDVP_UUID));
+                    idVProvider.setType(idVProviderResultSet.getString(IDVP_TYPE));
                     idVProvider.setIdVProviderName(idVProviderResultSet.getString(NAME));
                     idVProvider.setIdVProviderDescription(idVProviderResultSet.getString(DESCRIPTION));
                     idVProvider.setEnabled(idVProviderResultSet.getBoolean(IS_ENABLED));
@@ -482,5 +487,53 @@ public class IdVProviderDAOImpl implements IdVProviderDAO {
             throw IdVProviderMgtExceptionManagement.handleServerException(ERROR_RETRIEVING_IDV_PROVIDER_CLAIMS,
                     idVProvider.getIdVProviderName(), e);
         }
+    }
+
+    private String getSqlQuery(String databaseProductName) throws IdvProviderMgtServerException {
+
+        String sqlQuery;
+        if (databaseProductName.contains("H2") || databaseProductName.contains("MySQL") ||
+                databaseProductName.contains("MariaDB") || databaseProductName.contains("DB2")) {
+            sqlQuery = GET_IDVPS_SQL_BY_MYSQL;
+        } else if (databaseProductName.contains("Oracle") || databaseProductName.contains("Microsoft")) {
+            sqlQuery = GET_IDVPS_SQL_BY_MSSQL;
+        } else if (databaseProductName.contains("PostgreSQL")) {
+            sqlQuery = GET_IDVPS_SQL_BY_POSTGRESQL;
+        } else {
+            throw IdVProviderMgtExceptionManagement.handleServerException(ERROR_RETRIEVING_IDV_PROVIDERS);
+        }
+        return sqlQuery;
+    }
+
+    private PreparedStatement generatePrepStmt(Connection connection, int tenantId, int offset, int limit)
+            throws SQLException, IdvProviderMgtServerException {
+
+        PreparedStatement prepStmt;
+        String databaseProductName = connection.getMetaData().getDatabaseProductName();
+        String sqlQuery = getSqlQuery(databaseProductName);
+        if (databaseProductName.contains("PostgreSQL")) {
+            prepStmt = connection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setInt(2, limit);
+            prepStmt.setInt(3, offset);
+        } else {
+            prepStmt = connection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setInt(2, offset);
+            prepStmt.setInt(3, limit);
+        }
+        return prepStmt;
+    }
+
+    private String resolveSQLFilter(String filter) {
+
+        //To avoid any issues when the filter string is blank or null, assigning "%" to SQLFilter.
+        String sqlFilter = "%";
+        if (StringUtils.isNotBlank(filter)) {
+            sqlFilter = filter.trim()
+                    .replace("*", "%")
+                    .replace("?", "_");
+        }
+        return sqlFilter;
     }
 }

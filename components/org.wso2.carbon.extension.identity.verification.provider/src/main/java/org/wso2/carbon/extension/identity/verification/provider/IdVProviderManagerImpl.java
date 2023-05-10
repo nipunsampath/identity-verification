@@ -104,20 +104,25 @@ public class IdVProviderManagerImpl implements IdVProviderManager {
     }
 
     @Override
-    public IdVProvider updateIdVProvider(IdVProvider oldIdVProvider,
-                                         IdVProvider updatedIdVProvider,
+    public IdVProvider updateIdVProvider(IdVProvider oldIdVProvider, IdVProvider newIdVProvider,
                                          int tenantId) throws IdVProviderMgtException {
 
-        if (oldIdVProvider == null || updatedIdVProvider == null) {
+        if (oldIdVProvider == null || newIdVProvider == null) {
             throw IdVProviderMgtExceptionManagement.handleServerException(IdVProviderMgtConstants.ErrorMessage.
                     ERROR_UPDATING_IDV_PROVIDER);
         }
-        if (!StringUtils.equals(updatedIdVProvider.getIdVProviderName(), oldIdVProvider.getIdVProviderName())) {
+        if (!StringUtils.equals(newIdVProvider.getType(), oldIdVProvider.getType())) {
             throw IdVProviderMgtExceptionManagement.
-                    handleClientException(ERROR_UPDATE_IDVP, updatedIdVProvider.getIdVProviderName());
+                    handleClientException(ERROR_UPDATE_IDVP, newIdVProvider.getIdVProviderName());
         }
-        getIdVProviderDAO().updateIdVProvider(oldIdVProvider, updatedIdVProvider, tenantId);
-        return updatedIdVProvider;
+        IdVProvider retrievedIdVProvider = getIdVProviderByName(newIdVProvider.getIdVProviderName(), tenantId);
+        if (retrievedIdVProvider != null && !StringUtils.equals(newIdVProvider.getIdVProviderUuid(),
+                retrievedIdVProvider.getIdVProviderUuid())) {
+            throw IdVProviderMgtExceptionManagement.
+                    handleClientException(ERROR_IDVP_ALREADY_EXISTS, newIdVProvider.getIdVProviderName());
+        }
+        getIdVProviderDAO().updateIdVProvider(oldIdVProvider, newIdVProvider, tenantId);
+        return newIdVProvider;
     }
 
     @Override

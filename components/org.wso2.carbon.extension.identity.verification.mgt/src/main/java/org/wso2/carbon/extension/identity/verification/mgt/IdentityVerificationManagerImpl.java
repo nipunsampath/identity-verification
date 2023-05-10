@@ -302,15 +302,15 @@ public class IdentityVerificationManagerImpl implements IdentityVerificationMana
     private static String getIdentityVerifierType(String identityVerifierId, int tenantId)
             throws IdentityVerificationServerException {
 
-        String identityVerifierName;
+        String identityVerifierType;
         try {
             IdVProvider idvProvider = IdentityVerificationDataHolder.getInstance().
                     getIdVProviderManager().getIdVProvider(identityVerifierId, tenantId);
-            identityVerifierName = idvProvider.getIdVProviderName();
+            identityVerifierType = idvProvider.getType();
         } catch (IdVProviderMgtException e) {
             throw IdentityVerificationExceptionMgt.handleServerException(
                     IdentityVerificationConstants.ErrorMessage.ERROR_VALIDATING_IDV_PROVIDER_ID, identityVerifierId, e);
         }
-        return identityVerifierName;
+        return identityVerifierType;
     }
 }
